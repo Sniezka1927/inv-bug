@@ -116,12 +116,13 @@ mod bug {
         #[ink(message)]
         pub fn update_timestamp(&mut self) {
             let current_timestamp = self.env().block_timestamp().clone() as u128;
-            // let timestamp_delta = (current_timestamp - self.last_timestamp) as u128;
-            let timestamp_delta = 10_000;
+            let timestamp_delta = (current_timestamp - self.last_timestamp) as u128;
+
+            // let timestamp_delta = 10_000;
 
             // 10^30 * delta
             let multiplication = 1000000000000000000000000000000u128 * (timestamp_delta);
-            let division = multiplication.checked_div(1000000000000).unwrap_or(0);
+            let division = multiplication / (1000000000000);
 
             let value = division;
             self.last_timestamp = current_timestamp as u128;
