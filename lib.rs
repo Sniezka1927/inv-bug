@@ -104,7 +104,7 @@ mod bug {
 
             // let timestamp_delta = 10_000;
 
-            // 10^30 * delta
+            // 10^30 * delta    
             let multiplication = (1000000000000000000000000000000u128)
                 .checked_mul(timestamp_delta)
                 .unwrap_or(0);
