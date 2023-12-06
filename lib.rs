@@ -104,7 +104,7 @@ mod bug {
 
             // let timestamp_delta = 10_000;
 
-            // 10^30 * delta    
+            // 10^30 * delta
             let multiplication = (1000000000000000000000000000000u128)
                 .checked_mul(timestamp_delta)
                 .unwrap_or(0);
@@ -124,8 +124,31 @@ mod bug {
     #[cfg(all(test, feature = "e2e-tests"))]
     mod e2e_tests {
         use super::*;
-        use ink_e2e::build_message;
+        // use ink_e2e::build_message;
+        use ink::prelude::string::String;
         type E2EResult<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+        type Environment = <BugRef as ink::env::ContractEnv>::Env;
+        use ink_e2e::ContractsBackend;
+
+        use ink::env::call::utils::{Argument, ArgumentList, EmptyArgumentList};
+
+        fn build_message(
+            account_id: AccountId,
+            selector: [u8; 4],
+            message: String,
+        ) -> ink_e2e::CallBuilderFinal<
+            Environment,
+            ArgumentList<Argument<String>, EmptyArgumentList>,
+            (),
+        > {
+            ink::env::call::build_call::<Environment>()
+                .call(account_id)
+                .exec_input(
+                    ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(selector))
+                        .push_arg(message),
+                )
+                .returns::<()>()
+        }
 
         #[ink_e2e::test]
         async fn check_timestamps_with_store(mut client: ink_e2e::Client<C, E>) -> E2EResult<()> {
@@ -136,76 +159,96 @@ mod bug {
                 .expect("instantiate failed")
                 .account_id;
 
-            let msg = build_message::<BugRef>(contract_account_id.clone())
-                .call(|bug| bug.get_timestamps());
-            let result = client
-                .call(&ink_e2e::bob(), msg, 0, None)
-                .await
-                .expect("Getting timestamps failed")
-                .return_value();
+            const ARBITRARY_SELECTOR: [u8; 4] = [0xF9, 0xF9, 0xF9, 0xF9];
+            let wildcard_message = "WILDCARD_MESSAGE 1".to_string();
+            let wildcard = build_message(
+                contract_account_id,
+                ARBITRARY_SELECTOR,
+                wildcard_message.clone(),
+            );
 
-            let mut last_timestamp = result.0;
+            // let x = ink::env::call::build_call::<Environment>().call(contract_account_id.clone()).exec_input(
+            //     ink::env::call::ExecutionInput::new(ink::env::call::Selector::new(
+            //         ARBITRARY_SELECTOR,
+            //     ))
+            //     .push_arg(1000000000000u128),
+            // ).returns::<()>();
+
+            // let msg = build_message::<BugRef>(contract_account_id.clone())
+            //     .call(|bug| bug.get_timestamps());
+            // let result = client
+            //     .call(&ink_e2e::bob(), msg, 0, None)
+            //     .await
+            //     .expect("Getting timestamps failed")
+            //     .return_value();
+
+            // let mut last_timestamp = result.0;
             for n in 1..10 {
-                let msg = build_message::<BugRef>(contract_account_id.clone())
-                    .call(|bug| bug.get_timestamps());
+                // let msg = build_message::<BugRef>(contract_account_id.clone())
+                //     .call(|bug| bug.get_timestamps());
 
-                let result = client
-                    .call(&ink_e2e::bob(), msg, 0, None)
-                    .await
-                    .expect("Getting timestamps failed")
-                    .return_value();
+                // let result = client
+                //     .call(&ink_e2e::bob(), msg, 0, None)
+                //     .await
+                //     .expect("Getting timestamps failed")
+                //     .return_value();
 
-                println!(
-                    "timestamp diff = {:?}  [{:?} - {:?}]",
-                    result.0 - last_timestamp,
-                    result.0,
-                    last_timestamp
-                );
+                // println!(
+                //     "timestamp diff = {:?}  [{:?} - {:?}]",
+                //     result.0 - last_timestamp,
+                //     result.0,
+                //     last_timestamp
+                // );
 
-                last_timestamp = result.0;
+                // last_timestamp = result.0;
 
-                let msg = build_message::<BugRef>(contract_account_id.clone())
-                    .call(|bug| bug.update_timestamp());
+                // let msg = build_message::<BugRef>(contract_account_id.clone())
+                //     .call(|bug| bug.update_timestamp());
 
-                let result_dry_run = client.call_dry_run(&ink_e2e::bob(), &msg, 0, None).await;
+                // let result_dry_run = client.call_dry_run(&ink_e2e::bob(), &msg, 0, None).await;
 
-                println!(
-                    "Dry run gas required = {:?}",
-                    result_dry_run.exec_result.gas_required
-                );
-                let result = client.call(&ink_e2e::bob(), msg, 0, None).await;
-                if result.is_ok() {
-                    println!(
-                        "Call gas required = {:?}",
-                        result.unwrap().dry_run.exec_result.gas_required
-                    );
-                } else {
-                    println!("Call failed! Retrying...");
-                    let mut went_through = false;
-                    let mut attempt = 1;
-                    while !went_through && attempt < 10 {
-                        
-                        let msg = build_message::<BugRef>(contract_account_id.clone())
-                        .call(|bug| bug.update_timestamp());
-                        let result_dry_run = client.call_dry_run(&ink_e2e::bob(), &msg, 0, None).await;
-                        println!(
-                            "   Dry run gas required = {:?}",
-                            result_dry_run.exec_result.gas_required
-                        );
-                        let result = client.call(&ink_e2e::bob(), msg, 0, None).await;
-                        if result.is_ok() {
-                            went_through = true;
-                            println!(
-                             "   Call gas required = {:?}",
-                            result.unwrap().dry_run.exec_result.gas_required
-                            );
-                        } else {
-                            println!("  Call failed! Attempt = {:?}", attempt);
-                            attempt += 1;
-                        };
-                    }
-                    
-                }
+                // let mut required_gas = result_dry_run.exec_result.gas_required;
+
+                // println!(
+                //     "Dry run gas required = {:?}",
+                //     result_dry_run.exec_result.gas_required
+                // );
+                // required_gas.proof_size *= 2;
+                // println!("Increased gas = {:?}", required_gas);
+                // let result = client.call(&ink_e2e::bob(), msg, 100, None).await;
+                // if result.is_ok() {
+                // println!(
+                //     "Call gas required = {:?}",
+                //     result.unwrap().dry_run.exec_result.gas_required
+                // );
+                // }
+                // else {
+                //     println!("Call failed! Retrying...");
+                //     let mut went_through = false;
+                //     let mut attempt = 1;
+                //     while !went_through && attempt < 10 {
+
+                //         let msg = build_message::<BugRef>(contract_account_id.clone())
+                //         .call(|bug| bug.update_timestamp());
+                //         let result_dry_run = client.call_dry_run(&ink_e2e::bob(), &msg, 0, None).await;
+                //         println!(
+                //             "   Dry run gas required = {:?}",
+                //             result_dry_run.exec_result.gas_required
+                //         );
+                //         let result = client.call(&ink_e2e::bob(), msg, 0, None).await;
+                //         if result.is_ok() {
+                //             went_through = true;
+                //             println!(
+                //              "   Call gas required = {:?}",
+                //             result.unwrap().dry_run.exec_result.gas_required
+                //             );
+                //         } else {
+                //             println!("  Call failed! Attempt = {:?}", attempt);
+                //             attempt += 1;
+                //         };
+                //     }
+
+                // }
                 println!("");
             }
 

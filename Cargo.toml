@@ -10,14 +10,10 @@ ink = { version = "4.3.0", default-features = false }
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2.6", default-features = false, features = ["derive"], optional = true }
 
-openbrush = { git = "https://github.com/Brushfam/openbrush-contracts", branch = "develop", default-features = false, features = [
-  "psp22",
-  "ownable",
-  "reentrancy_guard",
-] }
 
 [dev-dependencies]
-ink_e2e = "4.3.0"
+# ink_e2e = "4.3.0"
+ink_e2e = {path = "./ink/crates/e2e"}
 
 [lib]
 path = "lib.rs"

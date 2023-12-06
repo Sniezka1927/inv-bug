@@ -1,0 +1,85 @@
+[package]
+name = "ink_env"
+version.workspace = true
+authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
+edition.workspace = true
+rust-version = "1.68"
+
+license.workspace = true
+readme = "README.md"
+repository.workspace = true
+documentation = "https://docs.rs/ink_env/"
+homepage.workspace = true
+description = "[ink!] Low-level interface for interacting with the smart contract Wasm executor."
+keywords.workspace = true
+categories.workspace = true
+include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
+
+[dependencies]
+ink_allocator = { workspace = true }
+ink_storage_traits = { workspace = true }
+ink_prelude = { workspace = true }
+ink_primitives = { workspace = true }
+
+scale = { workspace = true }
+derive_more = { workspace = true, features = ["from", "display"] }
+num-traits = { workspace = true, features = ["i128"] }
+cfg-if = { workspace = true }
+paste = { workspace = true }
+static_assertions = { workspace = true }
+const_env = { workspace = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+rlibc = "1"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+ink_engine = { workspace = true, default-features = true, optional = true }
+
+# Hashes for the off-chain environment.
+sha2 = { workspace = true, optional = true }
+sha3 = { workspace = true, optional = true }
+blake2 = { workspace = true, optional = true }
+
+# ECDSA for the off-chain environment.
+secp256k1 = { workspace = true, features = ["recovery", "global-context"], optional = true }
+
+# schnorrkel for the off-chain environment.
+schnorrkel = { version = "0.11.2", optional = true }
+
+# Only used in the off-chain environment.
+#
+# Sadly couldn't be marked as dev-dependency.
+# Never use this crate outside the off-chain environment!
+scale-decode = { workspace = true, optional = true }
+scale-encode = { workspace = true, optional = true }
+scale-info = { workspace = true, features = ["derive"], optional = true }
+
+[dev-dependencies]
+ink = { path = "../ink" }
+
+[features]
+default = ["std"]
+std = [
+    "ink_allocator/std",
+    "ink_prelude/std",
+    "ink_primitives/std",
+    "ink_storage_traits/std",
+    "ink_engine/std",
+    "scale/std",
+    "scale-decode",
+    "scale-encode",
+    "scale-info/std",
+    "secp256k1",
+    "schnorrkel",
+    "num-traits/std",
+    # Enables hashing crates for off-chain environment.
+    "sha2",
+    "sha3",
+    "blake2",
+]
+
+# Enable contract debug messages via `debug_print!` and `debug_println!`.
+ink-debug = []
+
+# Disable the ink! provided global memory allocator.
+no-allocator = ["ink_allocator/no-allocator"]

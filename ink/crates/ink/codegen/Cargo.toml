@@ -1,0 +1,43 @@
+[package]
+name = "ink_codegen"
+version.workspace = true
+authors = ["Parity Technologies <admin@parity.io>", "Robin Freyler <robin@parity.io>"]
+edition.workspace = true
+
+license.workspace = true
+readme = "README.md"
+repository.workspace = true
+documentation = "https://docs.rs/ink_codegen/"
+homepage.workspace = true
+description = "data structures and algorithms for generating ink! IR code"
+keywords.workspace = true
+categories.workspace = true
+include = ["Cargo.toml", "src/**/*.rs", "README.md", "LICENSE"]
+
+[lib]
+name = "ink_codegen"
+
+[dependencies]
+ink_primitives = { workspace = true }
+ir = { version = "=5.0.0-rc", package = "ink_ir", path = "../ir", default-features = false }
+quote = { workspace = true }
+syn = { workspace = true, features = ["parsing", "full", "extra-traits"] }
+proc-macro2 = { workspace = true }
+derive_more = { workspace = true, features = ["from"] }
+itertools = { workspace = true }
+either = { workspace = true }
+blake2 = { workspace = true }
+heck = { workspace = true }
+scale = { workspace = true }
+impl-serde = { workspace = true, default-features = true }
+
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+
+[features]
+default = ["std"]
+std = [
+    "itertools/use_std",
+    "either/use_std",
+    "ir/std"
+]
