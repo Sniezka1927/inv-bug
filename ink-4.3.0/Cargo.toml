@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/ink",
+    "crates/metadata",
+    "crates/allocator",
+    "crates/ink",
+    "crates/ink/macro",
+    "crates/ink/ir",
+    "crates/ink/codegen",
+    "crates/ink/macro",
+    "crates/prelude",
+    "crates/primitives",
+    "crates/e2e",
+    "crates/e2e/macro",
+    "crates/engine",
+    "crates/env",
+    "crates/storage",
+    "crates/storage/traits",
+]
+exclude = [
+    "integration-tests/",
+]
+
+[profile.release]
+panic = "abort"
+lto = true
