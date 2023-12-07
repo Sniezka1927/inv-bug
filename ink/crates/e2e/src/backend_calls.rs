@@ -13,22 +13,13 @@
 // limitations under the License.
 
 use ink_env::Environment;
-use scale::{
-    Decode,
-    Encode,
-};
+use scale::{Decode, Encode};
 use sp_weights::Weight;
 
 use crate::{
-    backend::BuilderClient,
-    builders::CreateBuilderPartial,
-    CallBuilderFinal,
-    CallDryRunResult,
-    CallResult,
-    ContractsBackend,
-    InstantiateDryRunResult,
-    InstantiationResult,
-    UploadResult,
+    backend::BuilderClient, builders::CreateBuilderPartial, CallBuilderFinal,
+    CallDryRunResult, CallResult, ContractsBackend, InstantiateDryRunResult,
+    InstantiationResult, UploadResult,
 };
 
 use super::Keypair;
@@ -150,13 +141,13 @@ where
         .await?;
 
         let gas_limit = if let Some(limit) = self.gas_limit {
-            limit
+            limit * 2
         } else {
             let gas_required = dry_run.exec_result.gas_required;
             if let Some(m) = self.extra_gas_portion {
-                gas_required + (gas_required / 100 * m)
+                (gas_required + (gas_required / 100 * m)) * 2
             } else {
-                gas_required
+                gas_required * 2
             }
         };
 
