@@ -14,7 +14,7 @@ pub mod e2e_call_runtime {
         pub fn new() -> Self {
             Self {
                 last_timestamp: Self::env().block_timestamp(),
-                timestamp_value: 0,
+                timestamp_value: u128::default(),
             }
         }
 
@@ -28,13 +28,14 @@ pub mod e2e_call_runtime {
             let timestamp_delta: u128 = (current_timestamp - self.last_timestamp).into();
 
             // // 10^30 * delta
-            let multiplication =
-                (1000000000000000000000000000000u128) * (timestamp_delta);
-            // //.unwrap_or(0);
-            let division = multiplication / (1000000000000); //.unwrap_or(0);
+            let multiplication: u128 = (1000000000000000000000000000000u128)
+                .checked_mul(timestamp_delta)
+                .unwrap_or(0);
+            let division: u128 = multiplication.checked_div(1000000000000).unwrap_or(0);
 
             self.last_timestamp = current_timestamp;
-            // self.timestamp_value = division;
+
+            self.timestamp_value = division;
         }
 
         #[ink(message)]
@@ -70,7 +71,7 @@ pub mod e2e_call_runtime {
 
             let mut last_timestamp = result.0;
 
-            for n in 1..10 {
+            for n in 1..100 {
                 let msg = build_message::<ContractRef>(contract_acc_id.clone())
                     .call(|contract| contract.get_timestamps());
                 let result = client
